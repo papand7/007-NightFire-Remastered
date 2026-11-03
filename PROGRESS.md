@@ -31,6 +31,17 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-03 - Map export, step 2: Skyrail and Phoenix Base as GLB
+- `tools/map_export/export_map.py <eurocom dir> <map>` writes map.glb, collision.glb, metadata.json,
+  extraction_report.md and textures/ to `generated/private/maps/<map>/`. Formats (from default.xbe): chunk dispatch
+  FUN_000a6820; KXE meshes FUN_000de220 (triangle strips, NORMPACKED3 normals); KXT textures FUN_000ddf90;
+  0x1a placements FUN_000a6550; 0x2e collision BVH FUN_000a63f0 (layout inferred).
+- Skyrail: 155 meshes, 35370 triangles, 102/107 textures, 32329 collision triangles. Phoenix Base: 41 meshes, 8302
+  triangles, 47/51 textures, 8310 collision triangles. Every index in range, group/index counts match, all collision
+  triangles covered by BVH leaves, packed normals agree with the mirrored winding; Blender 5.2 imports all four GLBs.
+- Unverified: marker rotation convention, units (about 1 m), Godot import, comparison with in-game frames.
+- Next: compare against a harness capture of each map; test the Godot import.
+
 ### 2026-11-03 - Map export, step 1: the Eurocom archive, EDL and the MP maps' files
 - `tools/map_export/` (offline Python, read-only, output in git-ignored `generated/private/`): the filesys index,
   CRC32 names, KXC/EDL unpacking (method 1 reversed from FUN_000d3a80: Deflate's LZ77 tables, Eurocom's block headers)
