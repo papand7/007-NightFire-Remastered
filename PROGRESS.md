@@ -31,6 +31,16 @@ Newest first. Each entry: date, what changed, what was learned, what's next.
 
 ## Log
 
+### 2026-11-03 - Map export, step 1: the Eurocom archive, EDL and the MP maps' files
+- `tools/map_export/` (offline Python, read-only, output in git-ignored `generated/private/`): the filesys index,
+  CRC32 names, KXC/EDL unpacking (method 1 reversed from FUN_000d3a80: Deflate's LZ77 tables, Eurocom's block headers)
+  and a level file lister/unpacker. All 30 `0700xxxx.bin` levels unpack to their header sizes.
+- The MP map table (file offset 0x16c698) and the English text give Skyrail = 07000024.bin and Phoenix Base =
+  07000026.bin (the other six in tools/map_export/README.md).
+- A level file is a container of hashcode-named sub-files; kind 1 (one per level, Skyrail's 010000fa) is the map,
+  with its texture table and object names. Its geometry format is not decoded: no GLB yet.
+- Next: the kind-1 loader in default.xbe (the kind dispatch, then its vertex/index buffers), then the GLB writer.
+
 ### 2026-10-31 - README: graphics settings compared, ultrawide, the menu, Discord
 
 - Harry's 3440x1440 shots (Alpine level) on one spot: the view drifted between them (up to 73 px) and snow and guards
