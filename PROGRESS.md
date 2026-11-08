@@ -2,13 +2,24 @@
 
 Newest first. Each entry: date, what changed, what was learned, what's next.
 
+## 2026-11-08: finish water refraction validation
+
+Water's waves, reflections, depth tint and moving edge foam were checked on Phoenix Base's pit water.
+Refraction now rejects displaced samples covered by nearer geometry, including the weapon and characters
+drawn after the opaque background was captured. Both Windows executables build and the scene shader compiles.
+Geometry, localhost co-op and discovery, particles and wheel menu checks are recorded below; physical wheel
+binding and force feedback remain untested because no wheel was connected.
+Linux headless smoke passed: title -> START -> Paris, 405 draws per frame over the final 300 frames, no traps.
+The harness used its existing TOML headers and a scripted START at vblank 5900 to skip the stalled movie
+transition; the rendering checks were unchanged. Earlier runs without that press failed at the transition.
+
 ## Status
 - Linux (2026-11-08, branch `linux-port`, SDK `linux-port`): both exes build and play in WSL2 (llvmpipe), the Linux
   smoke test passes (SMOKE OK), the Linux launcher (AppImage) builds the game from GitHub; not yet on a real Linux GPU.
 - Latest validation (2026-11-07): both Windows executables build; Exchange geometry, two-copy co-op, localhost host
   discovery, particle captures and wheel menu checks completed. Water is on by default: Phoenix Base's pit water
-  is known by its texture keys (2026-11-07). SDK work is committed on `vulkan` at 291d356 (NVIDIA DLSS added 2026-11-08, tested on an RTX 5060); main updates still await the required Linux smoke
-  tests (unavailable here) or an explicit user exception. No wheel hardware was connected for binding/force tests.
+  is known by its texture keys (2026-11-07). Water refraction's foreground rejection is finished on main;
+  Linux smoke passed on 2026-11-08 (see the entry above). No wheel hardware was connected for binding/force tests.
 - Released: v1.0.1 (2026-10-30; v1.0.0's launcher built default.xbe alone), public, MIT; NightFireLauncher.exe from
   GitHub Actions (v1.0.1 run 41045371616, sha256 7f18f58a...).
 - Milestone: 3 - plays on Windows. Harry (2026-10-28, D3D12, RX 7900 XT): the Paris driving mission to its end and
