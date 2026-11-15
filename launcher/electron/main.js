@@ -50,7 +50,7 @@ function bundlesDir(g) {
 }
 
 function startService(g) {
-    const emit = ev => send('svc', { ...ev, game: g.id });
+    const emit = ev => send('svc', { ...ev, from: g.id });
     if (!fs.existsSync(g.service)) {
         g.missing = true;
         emit({ ev: 'error', message: 'This launcher was made without this game\'s service.' });

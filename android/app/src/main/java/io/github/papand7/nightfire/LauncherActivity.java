@@ -258,17 +258,21 @@ public class LauncherActivity extends Activity {
 
     private void renderTabs() {
         gameTabs.removeAllViews();
-        List<String> ids = PackageStore.games(this);
+        List<String> installed = PackageStore.games(this);
         String current = PackageStore.current(this);
-        if (ids.isEmpty()) {
-            gameTabs.addView(tab("NO GAME YET", false, null), new LinearLayout.LayoutParams(-2, -1));
-            return;
+        // every game the app plays, installed or not: a game not imported yet is one tap away from its instructions
+        for (String id : PackageStore.tabs(this)) {
+            String name = shortName(titleOf(id));
+            TextView t = tab(name, id.equals(current), id);
+            if (!installed.contains(id) && !id.equals(current)) t.setAlpha(0.6f);
+            gameTabs.addView(t, new LinearLayout.LayoutParams(-2, -1));
         }
-        for (String id : ids) {
-            JSONObject m = PackageStore.manifest(this, id);
-            String name = shortName(m != null ? m.optString("title", id) : id);
-            gameTabs.addView(tab(name, id.equals(current), id), new LinearLayout.LayoutParams(-2, -1));
-        }
+    }
+    /** a game's title: its package's, else the known one */
+    private String titleOf(String id) {
+        JSONObject m = PackageStore.manifest(this, id);
+        String known = PackageStore.knownTitle(id);
+        return m != null ? m.optString("title", known != null ? known : id) : known != null ? known : id;
     }
     private TextView tab(String label, boolean on, String id) {
         TextView t = text(label.toUpperCase(Locale.ROOT), 11, on ? ICE : MUTED, true, false);
@@ -359,20 +363,21 @@ public class LauncherActivity extends Activity {
             TextView kicker = text("JAMES BOND", 12, GOLD, true, false);
             kicker.setLetterSpacing(0.55f);
             col.addView(kicker);
-            LinearLayout row = new LinearLayout(LauncherActivity.this);
-            row.setGravity(Gravity.BOTTOM);
-            heroPrefix = text("007:", 40, 0xFFD8DBE0, true, true);
+            // 007: above the name, the name on one line, shrunk to fit and clear of the gun barrel
+            heroPrefix = text("007:", 26, 0xFFD8DBE0, true, true);
             heroPrefix.setLetterSpacing(0.04f);
+            LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(-2, -2);
+            pl.topMargin = dp(8);
+            col.addView(heroPrefix, pl);
             heroName = text("NIGHTFIRE", 40, ICE, true, true);
             heroName.setLetterSpacing(0.1f);
+            heroName.setMaxLines(1);
+            heroName.setAutoSizeTextTypeUniformWithConfiguration(18, 40, 1, TypedValue.COMPLEX_UNIT_SP);
             gradient(heroName);
-            row.addView(heroPrefix, new LinearLayout.LayoutParams(-2, -2));
-            LinearLayout.LayoutParams nl = new LinearLayout.LayoutParams(0, -2, 1);
-            nl.leftMargin = dp(10);
-            row.addView(heroName, nl);
-            LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(-1, -2);
-            rl.topMargin = dp(6);
-            col.addView(row, rl);
+            LinearLayout.LayoutParams nl = new LinearLayout.LayoutParams(-1, dp(52));
+            nl.topMargin = dp(2);
+            nl.rightMargin = dp(64);
+            col.addView(heroName, nl);
             addView(col, new FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_VERTICAL));
         }
         @Override protected void onDraw(Canvas c) {
@@ -523,26 +528,29 @@ public class LauncherActivity extends Activity {
     private void refresh() {
         if (ImportTask.active) return;
         renderTabs();
-        String why = PackageStore.problem(this);
-        JSONObject m = PackageStore.manifest(this);
+        String id = PackageStore.current(this);  // one game for everything below
+        String why = PackageStore.problem(this, id);
+        JSONObject m = PackageStore.manifest(this, id);
         boolean ready = why == null && m != null;
-        String title = m != null ? m.optString("title", "007: NightFire") : null;
-        String name = title != null ? shortName(title) : "NightFire";
+        String title = titleOf(id);
+        String name = shortName(title);
         heroName.setText(name.toUpperCase(Locale.ROOT));
         heroPrefix.setText("007:");
         dot.setBackground(dot(ready ? OK : m == null ? MUTED : BAD));
         status.setText(ready ? "READY TO PLAY" : m == null ? "NOT INSTALLED" : "PACKAGE NEEDS ATTENTION");
         status.setTextColor(ready ? OK : m == null ? MUTED : BAD);
-        packageTitle.setText(ready ? title : m == null ? "Add your game" : "Check your package");
+        packageTitle.setText(ready ? title : m == null ? "Add " + name : "Check your package");
         String date = m != null ? m.optString("built", "") : "";
         if (date.length() >= 10) date = date.substring(0, 10);
         packageMeta.setText(ready ? "Installed on this device" + (date.isEmpty() ? "" : " · built " + date)
-                : m == null ? "Import the package you created on your PC to get started." : why);
+                : m == null ? "Not on this device yet. On your PC, open " + name + " in the 007 Remastered launcher, "
+                  + "build its Android package, copy the ZIP here and import it." : why);
         play.setText(ready ? "PLAY " + name.toUpperCase(Locale.ROOT) : "IMPORT");
         enable(play, true);
         enable(toSettings, ready);
+        toSettings.setVisibility(ready ? View.VISIBLE : View.GONE);
         importZip.setText((ready ? "Import an updated package" : "Import game package").toUpperCase(Locale.ROOT));
-        settingsNote.setText(ready ? "For " + title + ". Saved to this device." : "Import a game to change its settings.");
+        settingsNote.setText(ready ? "For " + title + ". Saved to this device." : "Import " + name + " to change its settings.");
         enable(remove, m != null);
     }
 
@@ -554,6 +562,7 @@ public class LauncherActivity extends Activity {
         importStatus.setVisibility(busy ? View.VISIBLE : View.GONE);
         if (busy) {
             enable(play, false); enable(toSettings, false); enable(remove, false);
+            toSettings.setVisibility(View.GONE);
             play.setText("IMPORTING...");
             dot.setBackground(dot(BLUE));
             status.setText("IMPORT IN PROGRESS");
@@ -630,9 +639,9 @@ public class LauncherActivity extends Activity {
 
     private void removeGame() {
         String id = PackageStore.current(this);
-        JSONObject m = PackageStore.manifest(this);
+        JSONObject m = PackageStore.manifest(this, id);
         if (id == null || ImportTask.active) return;
-        String title = m != null ? m.optString("title", id) : id;
+        String title = titleOf(id);
         new AlertDialog.Builder(this).setTitle("Remove " + title + "?")
             .setMessage("Its package, saves and settings are deleted from this device. Import its package again to play it.")
             .setPositiveButton("Remove", (d, w) -> {

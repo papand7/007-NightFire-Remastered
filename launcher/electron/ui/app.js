@@ -51,7 +51,7 @@ function log(line, id = game) {
     logEl.scrollTop = logEl.scrollHeight;
 }
 nf.onService(ev => {
-    const id = ev.game || 'nightfire';
+    const id = ev.from || 'nightfire';  // ev.game is the service's disc status
     if (ev.ev === 'state') SS[id] = ev;
     if (ev.ev === 'state' && !checkedUpdate[id]) { checkedUpdate[id] = true; nf.command({ cmd: 'check_update', game: id }); }
     if (id !== game) {  // the other tab's: kept for when it is shown
@@ -203,7 +203,6 @@ function itemValue(it) {
     if (it.alias && v in it.alias) return it.alias[v];
     return v === undefined ? it.def : v;
 }
-function vulkan() { return !nightfire() || (value('s', 'renderer') || 'd3d12') === 'vulkan'; }  // Agent Under Fire: Vulkan only
 function graphicsNow() {
     const out = {};
     for (const p of schema()) for (const gr of p.groups) for (const it of gr.items) if (it.f === 'g') out[it.key] = itemValue(it);
@@ -219,13 +218,13 @@ const v = (f, key) => itemValue(find(f, key));
 function applyQuality(q) {
     const p = QUALITY[q];
     if (!p) return;
-    const smaa = p.aa === 'smaa' && vulkan(), fxaa = p.aa === 'fxaa' || (p.aa === 'smaa' && !vulkan());
+    const smaa = p.aa === 'smaa', fxaa = p.aa === 'fxaa';
     Object.assign(edits.s, { anisotropic_filtering: p.aniso, fxaa, smaa });
     Object.assign(edits.g, { quality_ao: p.ao, quality_bloom: p.bloom });
 }
 function matchQuality() {
     for (const [q, p] of Object.entries(QUALITY)) {
-        const smaa = p.aa === 'smaa' && vulkan(), fxaa = p.aa === 'fxaa' || (p.aa === 'smaa' && !vulkan());
+        const smaa = p.aa === 'smaa', fxaa = p.aa === 'fxaa';
         if (v('s', 'anisotropic_filtering') === p.aniso && !!v('s', 'fxaa') === fxaa && !!v('s', 'smaa') === smaa &&
             v('g', 'quality_ao') === p.ao && !!v('g', 'quality_bloom') === p.bloom) return q;
     }
@@ -332,7 +331,6 @@ function renderSettings() {
     const body = $('settings-body');
     body.innerHTML = '';
     const g = graphicsNow();
-    const vk = vulkan();
     for (const gr of page.groups) {
         if (gr.when && !gr.when(g)) continue;
         const card = document.createElement('div');
@@ -344,14 +342,12 @@ function renderSettings() {
         cb.style.gap = '0';
         for (const it of gr.items) {
             const row = document.createElement('div');
-            const needsVk = (page.vulkan || it.vulkan) && !vk;
-            row.className = 'set' + (needsVk ? ' off' : '');
+            row.className = 'set';
             const lbl = document.createElement('div');
             lbl.className = 'lbl';
             lbl.textContent = it.label;
             const changed = it.key === 'resolution' ? ('width' in edits.s) : (it.key in edits[it.f]);
             if (changed) lbl.insertAdjacentHTML('beforeend', '<span class="tag changed">CHANGED</span>');
-            if (needsVk) lbl.insertAdjacentHTML('beforeend', '<span class="tag">VULKAN</span>');
             if (it.restart) lbl.insertAdjacentHTML('beforeend', '<span class="tag">NEXT START</span>');
             row.append(lbl, control(it));
             if (it.help) {
@@ -363,12 +359,6 @@ function renderSettings() {
         }
         card.append(head, cb);
         body.append(card);
-    }
-    if (page.vulkan && !vk) {
-        const n = document.createElement('div');
-        n.className = 'note';
-        n.textContent = 'These are drawn by the Vulkan renderer only: Graphics > Renderer > Vulkan.';
-        body.prepend(n);
     }
     if (page.note) {
         const n = document.createElement('div');

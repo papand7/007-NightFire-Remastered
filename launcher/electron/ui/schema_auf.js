@@ -27,8 +27,6 @@ window.SCHEMA_AUF = [
                     { f: 's', key: 'render_percent', label: 'Render scale', def: 100, type: 'range', min: 25, max: 200, step: 5, unit: '%' },
                     { f: 's', key: 'scale_filter', label: 'Scaling filter', def: 0, options: pick([0, 'Smooth (bilinear)'], [1, 'Sharp (Catmull-Rom)']) },
                     { f: 's', key: 'anisotropic_filtering', label: 'Texture filtering', def: 0, options: pick([0, 'As the game asks'], [2, '2x'], [4, '4x'], [8, '8x'], [16, '16x']) },
-                    { f: 's', key: 'msaa', label: 'MSAA', def: 'off', options: pick(['off', 'Off'], ['msaa2', '2x'], ['msaa4', '4x'], ['msaa8', '8x']) },
-                    { f: 's', key: 'alpha_coverage', label: 'Smooth fences and leaves', def: false, help: 'With MSAA: alpha-tested edges get partial coverage.' },
                     { f: 's', key: 'fxaa', label: 'FXAA', def: false },
                     { f: 's', key: 'smaa', label: 'SMAA', def: false, help: 'In place of FXAA.' },
                     { f: 's', key: 'temporal_aa', label: 'Temporal anti-aliasing', def: false, help: 'Smoothest edges; the weapon and moving characters can ghost.' },

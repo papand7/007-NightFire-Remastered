@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:label="007"
+        android:label="007 Remastered"
         android:icon="@drawable/ic_launcher"
         android:allowBackup="false"
         android:hardwareAccelerated="true"

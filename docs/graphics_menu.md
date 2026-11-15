@@ -12,7 +12,7 @@ it draws and moves as Eurocom's pages do. No ImGui.
 | Style Options | page | the chosen style's rows |
 | Effects | page | Ambient Occlusion, Bloom, Reflections, Particles, Materials, Lighting, Ray Tracing, Depth of Field, Tone Mapping, Motion Blur (Vulkan; the shared page), Blood (any renderer) |
 | Texture Filtering | As the Game, 2x-16x | Settings::aniso (both renderers) |
-| Anti-Aliasing | Off, FXAA (+ MSAA 2x/4x/8x on Direct3D) | Settings::fxaa, msaa |
+| Anti-Aliasing | Off, FXAA, SMAA | Settings::fxaa, smaa |
 | Sharpening | Off / Low / Medium / High | Settings::sharpen (both) |
 | Render Scale | 50%-200% | Settings::render_percent (both, at once) |
 | Texture Packs | Off / On | mods/textures (Vulkan) |
@@ -26,8 +26,7 @@ it draws and moves as Eurocom's pages do. No ImGui.
 | High | 8x | on | low | on |
 | Ultra | 16x | on | high | on |
 
-Changing any of those four makes the preset Custom; the style is apart from the preset. Under the Direct3D renderers
-the Vulkan-only rows read "Needs Vulkan". A keeps a page's values and goes back, B leaves without, as on AV Options.
+Changing any of those four makes the preset Custom; the style is apart from the preset. A keeps a page's values and goes back, B leaves without, as on AV Options.
 Values go to settings.toml and graphics.toml; the game's thread hands the style to the renderer (gpu::RequestStyle),
 which takes it at its next frame.
 

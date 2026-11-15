@@ -27,12 +27,10 @@ window.SCHEMA = [
             {
                 title: 'Quality', items: [
                     { f: 'g', key: 'quality', label: 'Graphics quality', def: 'custom', options: pick(['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['ultra', 'Ultra'], ['custom', 'Custom']), help: 'Sets filtering, anti-aliasing, ambient occlusion and bloom together.' },
-                    { f: 's', key: 'renderer', label: 'Renderer', def: 'd3d12', restart: true, options: pick(['vulkan', 'Vulkan (all effects)'], ['d3d12', 'Direct3D 12'], ['d3d11', 'Direct3D 11']), help: 'Shader styles and effects need Vulkan.' },
                     { f: 's', key: 'render_percent', label: 'Render scale', def: 100, type: 'range', min: 25, max: 200, step: 5, unit: '%' },
                     { f: 's', key: 'anisotropic_filtering', label: 'Texture filtering', def: 0, options: pick([0, 'As the game asks'], [2, '2x'], [4, '4x'], [8, '8x'], [16, '16x']) },
                     { f: 's', key: 'fxaa', label: 'FXAA', def: false },
-                    { f: 's', key: 'smaa', label: 'SMAA', def: false, vulkan: true },
-                    { f: 's', key: 'msaa', label: 'MSAA', def: 'off', options: pick(['off', 'Off'], ['msaa2', '2x'], ['msaa4', '4x'], ['msaa8', '8x']), help: 'Direct3D only.' },
+                    { f: 's', key: 'smaa', label: 'SMAA', def: false },
                     { f: 's', key: 'sharpen', label: 'Sharpening', def: 0, type: 'range', min: 0, max: 100, step: 5, unit: '%' },
                 ],
             },
@@ -50,7 +48,7 @@ window.SCHEMA = [
         ],
     },
     {
-        id: 'style', title: 'Shader Style', icon: 'palette', vulkan: true, groups: [
+        id: 'style', title: 'Shader Style', icon: 'palette', groups: [
             {
                 title: 'Style', items: [
                     { f: 'g', key: 'mode', label: 'Rendering', def: 'original', options: pick(['original', 'Original'], ['enhanced', 'Enhanced'], ['toon', 'Toon'], ['retro', 'Retro']) },
@@ -94,7 +92,7 @@ window.SCHEMA = [
         ],
     },
     {
-        id: 'effects', title: 'Effects', icon: 'spark', vulkan: true, groups: [
+        id: 'effects', title: 'Effects', icon: 'spark', groups: [
             {
                 title: 'Lighting', items: [
                     { f: 'g', key: 'quality_ao', label: 'Ambient occlusion', def: 0, options: pick([0, 'Off'], [1, 'Low'], [2, 'High']) },
@@ -227,7 +225,7 @@ window.SCHEMA = [
     },
 ];
 
-// the quality presets (kQuality in style.cpp): high and ultra take SMAA under Vulkan, FXAA under Direct3D
+// the quality presets (kQuality in style.cpp)
 window.QUALITY = {
     low: { aniso: 0, aa: 'none', ao: 0, bloom: false },
     medium: { aniso: 4, aa: 'fxaa', ao: 0, bloom: true },

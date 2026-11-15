@@ -1,8 +1,7 @@
 # Graphics styles
 
 Settings window (F1, or Back + Start on a controller) > **Graphics Style**. Styles switch at once, in play, and are
-kept in `graphics.toml` beside the exe. They are drawn by the Vulkan renderer (the only renderer); the
-Direct3D renderers draw Original whatever is chosen.
+kept in `graphics.toml` beside the exe. They are drawn by the Vulkan renderer, the only renderer.
 
 | Style | What it does |
 |---|---|
@@ -225,8 +224,7 @@ the kill mark) without a hit. Off by default.
 
 Settings window > Graphics > **SMAA**, or the game's Graphics page > Anti-Aliasing > SMAA (Vulkan). SMAA 1x (Ultra
 preset, luma edges; Jimenez et al., MIT, fetched by the build) over the 3D scene before the HUD, so text and HUD stay
-sharp, unlike FXAA, which is drawn over the finished picture. Not drawn in Retro. Quality High and Ultra take SMAA
-under Vulkan, FXAA under Direct3D.
+sharp, unlike FXAA, which is drawn over the finished picture. Not drawn in Retro. Quality High and Ultra take SMAA.
 
 ## Texture packs
 

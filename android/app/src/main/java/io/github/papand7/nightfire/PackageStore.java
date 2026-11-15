@@ -76,19 +76,36 @@ final class PackageStore {
         return ids;
     }
 
-    /** the game the launcher shows: the one picked or imported last, else the first installed, else null */
+    /** the games the app knows (their folders' names and titles), shown as tabs before their packages are imported */
+    static final String[][] KNOWN = { { "NightFire", "007: NightFire" }, { "AgentUnderFire", "007: Agent Under Fire" } };
+
+    static String knownTitle(String id) {
+        for (String[] k : KNOWN) if (k[0].equals(id)) return k[1];
+        return null;
+    }
+
+    /** the known games and any other installed one */
+    static List<String> tabs(Context c) {
+        ArrayList<String> ids = new ArrayList<>();
+        for (String[] k : KNOWN) ids.add(k[0]);
+        for (String id : games(c)) if (!ids.contains(id)) ids.add(id);
+        return ids;
+    }
+
+    /** the game the launcher shows: the one picked or imported last (installed or not), else the first installed,
+     *  else NightFire */
     static String current(Context c) {
         List<String> ids = games(c);
         String id = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(CURRENT, null);
-        if (id != null && ids.contains(id)) return id;
-        return ids.isEmpty() ? null : ids.get(0);
+        if (id != null && (ids.contains(id) || knownTitle(id) != null)) return id;
+        return ids.isEmpty() ? KNOWN[0][0] : ids.get(0);
     }
 
     static void setCurrent(Context c, String id) {
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(CURRENT, id).commit();
     }
 
-    /** the current game's folder (files/games/none while none is installed) */
+    /** the current game's folder (it doesn't exist while that game isn't installed) */
     static File gameDir(Context c) {
         return gameDir(c, current(c));
     }
@@ -130,9 +147,13 @@ final class PackageStore {
 
     /** null when the package can run here, else why not */
     static String problem(Context c) {
-        JSONObject m = manifest(c);
+        return problem(c, current(c));
+    }
+
+    static String problem(Context c, String id) {
+        JSONObject m = manifest(c, id);
         if (m == null) return "No game package imported yet.";
-        return problem(m, gameDir(c));
+        return problem(m, gameDir(c, id));
     }
 
     private static String problem(JSONObject m, File dir) {

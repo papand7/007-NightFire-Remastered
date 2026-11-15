@@ -436,16 +436,12 @@ std::vector<std::pair<const char*, uint32_t>> UpscalerItems() {
 }
 const char* kQualityNames[] = {"Low", "Medium", "High", "Ultra", "Custom"};
 
-bool Vulkan() { return gpu::StyleRendererActive(); }
+// Vulkan is the only renderer (the branches below that only a Direct3D renderer took are kept short, and unreachable)
+constexpr bool Vulkan() { return true; }
 
-// the anti-aliasing choice: 0 off, 1 FXAA, 2 to 4 MSAA 2x 4x 8x (the Direct3D renderers draw MSAA), 5 SMAA (Vulkan)
+// the anti-aliasing choice: 0 off, 1 FXAA, 5 SMAA
 constexpr uint32_t kAaSmaa = 5;
-std::vector<std::pair<const char*, uint32_t>> AaItems() {
-    std::vector<std::pair<const char*, uint32_t>> v = {{"Off", 0}, {"FXAA", 1}};
-    if (Vulkan()) v.push_back({"SMAA", kAaSmaa});
-    if (!Vulkan()) v.insert(v.end(), {{"MSAA 2x", 2}, {"MSAA 4x", 3}, {"MSAA 8x", 4}});
-    return v;
-}
+std::vector<std::pair<const char*, uint32_t>> AaItems() { return {{"Off", 0}, {"FXAA", 1}, {"SMAA", kAaSmaa}}; }
 
 uint32_t g_entered_quality = gpu::kQualityCustom;  // the preset shown when the page opened
 
@@ -498,7 +494,7 @@ void EnterGraphics(X86Context& ctx, uint32_t player) {
         Choice(ctx, player, kStyle, {{"Original (Needs Vulkan)", 0xFF}}, 0xFF);
     }
     ShowOptions(ctx, player, kFilter, kFilters, float(s.aniso));
-    uint32_t aa = s.msaa && !Vulkan() ? 1 + std::min<uint32_t>(s.msaa, 3) : s.smaa && Vulkan() ? kAaSmaa : s.fxaa ? 1 : 0;
+    uint32_t aa = s.smaa ? kAaSmaa : s.fxaa ? 1 : 0;
     Choice(ctx, player, kAa, AaItems(), aa);
     ShowOptions(ctx, player, kSharpen, kSharpenLevels, float(s.sharpen));
     ShowOptions(ctx, player, kScale, kScales, float(s.render_percent));
@@ -584,15 +580,13 @@ void KeepGraphics(X86Context& ctx, uint32_t player) {
             st.upscale_quality = int(q);
         st.upscale_sharpness = ReadOption(ctx, player, kUpscaleSharp, kUpscaleSharps);
     }
-    bool fxaa = aa == 1, smaa = Vulkan() ? aa == kAaSmaa : app::Get().smaa;
-    uint32_t msaa = aa >= 2 && aa <= 4 ? aa - 1 : 0;
+    bool fxaa = aa == 1, smaa = aa == kAaSmaa;
     // a preset chosen here sets its rows, whatever they show; else the rows make the preset (or Custom)
     if (quality != g_entered_quality && quality < uint32_t(gpu::kQualityCustom)) {
         int ao;
         bool bloom;
         gpu::QualityValues(int(quality), aniso, fxaa, smaa, ao, bloom);
-        if (fxaa) msaa = 0;
-        if (Vulkan()) st.quality_ao = ao, st.quality_bloom = bloom;
+        st.quality_ao = ao, st.quality_bloom = bloom;
     }
     st.quality = gpu::MatchQuality(st, aniso, fxaa, smaa);
     {
@@ -601,7 +595,6 @@ void KeepGraphics(X86Context& ctx, uint32_t player) {
         s.aniso = aniso;
         s.fxaa = fxaa;
         s.smaa = smaa;
-        if (!Vulkan()) s.msaa = msaa;
         s.sharpen = sharpen;
         s.render_percent = scale;
         if (hdr != 0xFF) s.hdr = hdr != 0, s.hdr_peak = hdr > 1 ? hdr : 0;

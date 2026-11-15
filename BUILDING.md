@@ -59,7 +59,7 @@ kept in `~/.cache/xbe-android/dxc`, `sdk/scripts/android/build_dxc.sh`), and zip
 `package.json` into `out/NightFire-android-package.zip`.
 
 **The app**: JDK 17 and the Android SDK (platform 35, build-tools 35.0.0); in `android/`: `./gradlew assembleRelease`
-(`app/build/outputs/apk/release/app-release.apk`, signed with the debug key for now). SDL's Java side is downloaded from
+(`app/build/outputs/apk/release/007Remastered-Android.apk`, signed with the debug key for now). SDL's Java side is downloaded from
 SDL's source at the release the runtime uses (`gradle.properties`); the app refuses a package built with another SDL.
 
 ## The launcher

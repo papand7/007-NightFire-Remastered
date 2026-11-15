@@ -53,7 +53,7 @@ Everything is set from the games' own menus.
 - **Snow:** falling snow, blizzards and footprints that fill in again; snow that sparkles.
 - **More detailed ground and walls:** real lumps and hollows in grass, snow, rock and concrete.
 - **HDR lighting:** bright snow and lamps glow instead of turning flat white; HDR on HDR screens.
-- **Smooth edges:** TAA, SMAA, FXAA and MSAA, plus **FSR 2** and **NVIDIA DLSS** (RTX graphics cards) for more
+- **Smooth edges:** TAA, SMAA and FXAA, plus **FSR 2** and **NVIDIA DLSS** (RTX graphics cards) for more
   frames per second, and **DLAA** for the smoothest edges at full sharpness.
 - **Effects:** ambient occlusion, contact shadows, bloom, ice and wet-floor reflections, light from muzzle flashes
   and fire, fog, depth of field, optional motion blur and blood that stays: dark red stains on the floor and walls
@@ -171,7 +171,7 @@ The **007 Remastered launcher** sets up both games, each on its own tab (Agent U
   fixed; expect more problems and please report them with the game's log. Ray tracing and DLSS are off on the Mac;
   the HD texture pack tool is built but untested.
 
-- **Android (beta, NightFire and Agent Under Fire):** `NightFire-Android.apk` (the app is named 007), sideloaded. The game itself is built on your PC: in the
+- **Android (beta, NightFire and Agent Under Fire):** `007Remastered-Android.apk` (the app is named 007 Remastered), sideloaded. The game itself is built on your PC: in the
   Windows or Linux launcher's **Android** page choose **Build Android package**, copy the zip to the phone and import
   it in the app. Each game's package is kept apart; the game tabs at the top pick the one to play.
 
