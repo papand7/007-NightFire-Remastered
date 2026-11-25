@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('nf', {
     state: game => ipcRenderer.invoke('svc:state', game),
     setGame: game => ipcRenderer.invoke('game:set', game),
     paths: () => ipcRenderer.invoke('paths'),
+    portable: () => ipcRenderer.invoke('portable:state'),
+    makePortable: () => ipcRenderer.invoke('portable:make'),
     onService: fn => ipcRenderer.on('svc', (_, ev) => fn(ev)),
     onWindow: fn => ipcRenderer.on('win', (_, ev) => fn(ev)),
     window: what => ipcRenderer.send('win', what),

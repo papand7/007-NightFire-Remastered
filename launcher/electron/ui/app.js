@@ -261,6 +261,13 @@ async function loadSettings() {
     if (files.running) { w.hidden = false; w.textContent = 'The game is running: close it before saving, or it writes its own settings over these.'; }
     else if (!files.haveSettings) { w.hidden = false; w.textContent = 'The game has not been started yet: these are its defaults. Saving writes them for its first start.'; }
     renderSettings();
+    loadPortable();
+}
+
+async function loadPortable() {
+    const p = await nf.portable();
+    $('portable-card').hidden = !!p.on;
+    if (!p.on) $('portable-msg').textContent = '';
 }
 
 function control(it) {
@@ -367,6 +374,15 @@ function renderSettings() {
         body.append(n);
     }
 }
+$('btn-portable').onclick = async () => {
+    if (!confirm('Make this launcher portable? Its data moves beside the launcher, then it restarts.')) return;
+    const b = $('btn-portable');
+    b.disabled = true;
+    $('portable-msg').textContent = 'Moving.';
+    const r = await nf.makePortable();
+    if (!r.ok) { b.disabled = false; $('portable-msg').textContent = r.message; }
+    else $('portable-msg').textContent = 'Restarting.';
+};
 $('btn-revert').onclick = () => loadSettings();
 $('btn-save').onclick = async () => {
     const r = await nf.saveSettings({ settings: edits.s, graphics: edits.g });

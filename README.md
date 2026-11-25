@@ -175,6 +175,10 @@ The **007 Remastered launcher** sets up both games, each on its own tab (Agent U
   Windows or Linux launcher's **Android** page choose **Build Android package**, copy the zip to the phone and import
   it in the app. Each game's package is kept apart; the game tabs at the top pick the one to play.
 
+**Portable:** new installs keep everything beside the launcher: `NightFire/`, `AgentUnderFire/`, and the launcher's own
+`.launcher/` data. Paths in each game's `launcher.json` are relative, so the whole folder can be moved or copied to
+another PC. An existing install can switch from Settings with **Make portable**.
+
 Building it yourself instead: see [BUILDING.md](BUILDING.md).
 
 ## Credits

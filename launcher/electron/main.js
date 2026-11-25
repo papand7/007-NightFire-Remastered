@@ -16,6 +16,20 @@ const EXE = WINDOWS ? '.exe' : '';
 const LAUNCHER_DIR = process.env.PORTABLE_EXECUTABLE_DIR ||
     (process.env.APPIMAGE ? path.dirname(process.env.APPIMAGE) : null) ||
     (app.isPackaged ? path.dirname(app.getPath('exe')) : (process.env.NF_LAUNCHER_DIR || path.resolve(__dirname, '../../out/launcher-dev')));
+// portable mode is the default for a new install: Electron's own data (cache, local storage) goes beside the
+// launcher. An existing install keeps AppData until the Settings page's button moves it.
+const PORTABLE_DIR = path.join(LAUNCHER_DIR, '.launcher');
+const DEFAULT_DATA_DIR = app.getPath('userData');
+// an empty Chromium profile folder is not an old install: only data the launcher itself wrote counts
+const HAS_LEGACY_DATA = ['Preferences', 'Local Storage', 'Session Storage']
+    .some(name => fs.existsSync(path.join(DEFAULT_DATA_DIR, name)));
+let PORTABLE = fs.existsSync(PORTABLE_DIR) || !HAS_LEGACY_DATA;
+if (PORTABLE) {
+    try {
+        fs.mkdirSync(PORTABLE_DIR, { recursive: true });
+        app.setPath('userData', PORTABLE_DIR);
+    } catch { PORTABLE = false; }
+}
 // the games this launcher installs, each by its own service (sdk/launcher/service.cpp built with that game's
 // launcher/game.json) in its own work folder beside the launcher. Agent Under Fire's service is built from that
 // game's repository (build_service.bat, AUF_REPO).
@@ -304,6 +318,26 @@ ipcMain.on('svc', (_, cmd) => command(cmd));
 ipcMain.handle('svc:state', (_, id) => (GAMES[id] || G()).state);
 ipcMain.handle('game:set', (_, id) => { if (GAMES[id]) active = id; return { missing: !!G().missing, android: !!G().android }; });
 ipcMain.handle('paths', () => ({ launcher: LAUNCHER_DIR, root: G().dir, platform: process.platform }));
+ipcMain.handle('portable:state', () => ({ on: PORTABLE, dir: PORTABLE_DIR, legacy: DEFAULT_DATA_DIR }));
+ipcMain.handle('portable:make', () => {
+    if (PORTABLE) return { ok: true };
+    const staging = PORTABLE_DIR + '.new';
+    try {
+        fs.rmSync(staging, { recursive: true, force: true });
+        fs.mkdirSync(staging, { recursive: true });
+        // the window's own state and update choice; the games' settings are already beside the launcher
+        for (const name of ['Preferences', 'Local Storage', 'Session Storage']) {
+            const from = path.join(DEFAULT_DATA_DIR, name);
+            if (fs.existsSync(from)) fs.cpSync(from, path.join(staging, name), { recursive: true });
+        }
+        fs.renameSync(staging, PORTABLE_DIR);
+        setTimeout(() => { app.relaunch(); app.quit(); }, 100);
+        return { ok: true };
+    } catch (e) {
+        try { fs.rmSync(staging, { recursive: true, force: true }); } catch {}
+        return { ok: false, message: String(e.message || e) };
+    }
+});
 
 // a newer launcher: the latest release on GitHub, else the mirror's latest.json; null when this one is the newest or
 // neither answers
