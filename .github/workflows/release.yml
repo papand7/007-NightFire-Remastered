@@ -1,7 +1,7 @@
-# <short>Launcher.exe, built on GitHub's Windows machines; the Linux launcher (Electron, an AppImage with the builder
-# service) on its Ubuntu machines; and the macOS launcher (a .dmg) on macOS. They hold no game code: players build the
-# game with them. A push to main (or linux-port) that touches the launcher builds them (artifacts); a tag v* builds them
-# and publishes the release with the exe, the AppImage, the dmg and docs/releases/<tag>.md as its notes.
+# 007Remastered.exe (Electron, Windows) and the Linux launcher (Electron, an AppImage with the builder service) on
+# their machines; the macOS launcher (a .dmg) on macOS. They hold no game code: players build the game with them. A
+# push to main (or linux-port) that touches the launcher builds them (artifacts); a tag v* builds them and publishes
+# the release with the exe, the AppImage, the dmg, the APK and docs/releases/<tag>.md as its notes.
 name: Launcher
 
 on:
@@ -32,22 +32,36 @@ jobs:
         with:
           submodules: true
 
-      - name: Build the launcher
+      # Agent Under Fire's source (this repository's agentunderfire branch): its launcher service and source bundles
+      - uses: actions/checkout@v4
+        with:
+          ref: agentunderfire
+          path: auf
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the launcher services
         shell: cmd
+        env:
+          AUF_REPO: ${{ github.workspace }}\auf
+        run: launcher\electron\build_service.bat
+
+      - name: Build 007Remastered.exe
+        working-directory: launcher/electron
+        env:
+          AUF_REPO: ${{ github.workspace }}\auf
         run: |
-          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSDIR=%%i"
-          call "%VSDIR%\Common7\Tools\VsDevCmd.bat" -arch=amd64 -host_arch=amd64
-          set "VSCMAKE=%VSDIR%\Common7\IDE\CommonExtensions\Microsoft\CMake"
-          set "PATH=%VSCMAKE%\CMake\bin;%VSCMAKE%\Ninja;%VSDIR%\VC\Tools\Llvm\x64\bin;%ProgramFiles%\LLVM\bin;%PATH%"
-          clang++ --version || exit /b 1
-          cmake -S sdk\launcher -B out\launcher -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLAUNCHER_GAME="%CD%\launcher" || exit /b 1
-          cmake --build out\launcher || exit /b 1
-          dir out\launcher\%GAME_SHORT%Launcher.exe
+          npm ci
+          npm run dist
+          dir ..\..\out\launcher-electron\007Remastered.exe
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.GAME_SHORT }}Launcher
-          path: out/launcher/${{ env.GAME_SHORT }}Launcher.exe
+          name: 007Remastered-Windows
+          path: out/launcher-electron/007Remastered.exe
 
       - name: Publish the release
         if: startsWith(github.ref, 'refs/tags/v') || inputs.tag != ''
@@ -56,9 +70,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
         run: |
-          if gh release view "$TAG" > /dev/null 2>&1; then echo "release $TAG exists: kept"; exit 0; fi
           notes="docs/releases/${TAG}.md"
-          gh release create "$TAG" "out/launcher/${GAME_SHORT}Launcher.exe" \
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "out/launcher-electron/007Remastered.exe" --clobber
+            exit 0
+          fi
+          gh release create "$TAG" "out/launcher-electron/007Remastered.exe" \
             --title "$GAME_TITLE PC port ${TAG#v}" --notes-file "$notes"
 
   linux-launcher:
