@@ -214,7 +214,10 @@ X86_FUNC(sub_000BDA00) {
         LOGR("auf: a cutscene skipped (skip_cutscenes, thread %08X)", thread);
     }
     const uint32_t me = ctx.ecx;
-    if (me && !cinematic && kernel::R32(A(0x329390)) && me == kernel::R32(kernel::R32(A(0x329390)) + 0x278)) WeaponKeys(ctx, me);
+    if (me && !cinematic && kernel::R32(A(0x329390)) && me == kernel::R32(kernel::R32(A(0x329390)) + 0x278)) {
+        WeaponKeys(ctx, me);
+        auf::CheatsFrame(ctx, me);
+    }
     ctx.ecx = me;
     __imp__sub_000BDA00(ctx, base);
 }

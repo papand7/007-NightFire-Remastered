@@ -56,6 +56,8 @@ X86_EXTERN_FUNC(__imp__sub_000AC040);
 X86_FUNC(sub_000AC040) {
     const uint32_t victim = ctx.ecx, attacker = kernel::R32(ctx.esp + 8);
     if (PlayerOf(attacker) == 0 && victim != attacker) g_recent[g_next++ % 16] = {victim, attacker};
+    // god mode (the launcher's Cheats page): a player takes no damage, even a shot that would kill in one hit
+    if (app::Get().god_mode && PlayerOf(victim) >= 0) kernel::W32(ctx.esp + 0xC, 0);
     // the shot's direction ([esp+0x14], a world vector) for a ragdoll's push
     if (const uint32_t dir = kernel::R32(ctx.esp + 0x14)) {
         const float* f = reinterpret_cast<const float*>(&kernel::G<uint32_t>(dir));
