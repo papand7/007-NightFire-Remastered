@@ -77,6 +77,7 @@ void OnlineRefresh();
 std::vector<OnlineServer> OnlineServers();
 bool OnlineSearching();
 void TeleportTest();                              // NF_TELEPORT_AHEAD=m (diagnostic): player 1 moved that far ahead, once
+void CheatsFrame();                               // the launcher's cheats: god mode and infinite ammo (src/game/cheats.cpp)
 bool CollectingTextures();                        // NF_COLLECT_TEXTURES=1 or NF_COLLECT_MOVIES=1 (src/game/texture_collect.cpp)
 bool CollectingMovies();                          // NF_COLLECT_MOVIES=1: the menu movies' frames alone
 void CollectTextures(X86Context& ctx);            // the pads' frame: the level files' textures, or the movies, dumped

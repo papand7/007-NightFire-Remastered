@@ -39,6 +39,7 @@ function show(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
     if (page === 'settings') loadSettings();
     if (page === 'textures') loadTextures();
+    if (page === 'cheats') loadCheats();
 }
 
 // ---- the service
@@ -372,6 +373,21 @@ $('btn-save').onclick = async () => {
     if (r.ok) { toast('Settings saved'); loadSettings(); }
     else toast(r.message);
 };
+
+// ---- cheats (settings.toml's god_mode and infinite_ammo; both games' runtimes read them)
+async function loadCheats() {
+    const f = await nf.loadSettings();
+    $('cheat-god').checked = !!f.settings.god_mode;
+    $('cheat-ammo').checked = !!f.settings.infinite_ammo;
+    setMsg($('cheats-msg'), f.running ? 'Close the game before changing cheats.' : '', false);
+}
+async function saveCheat(key, on) {
+    const r = await nf.saveSettings({ settings: { [key]: on } });
+    setMsg($('cheats-msg'), r.ok ? 'Saved' : r.message, r.ok);
+    if (!r.ok) loadCheats();
+}
+$('cheat-god').onchange = () => saveCheat('god_mode', $('cheat-god').checked);
+$('cheat-ammo').onchange = () => saveCheat('infinite_ammo', $('cheat-ammo').checked);
 
 // ---- the HD texture pack
 let packOpts = { scale: 4, model: 'x4plus' };

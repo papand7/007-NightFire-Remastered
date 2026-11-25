@@ -36,6 +36,7 @@ bool AnyScoped() {
 X86_EXTERN_FUNC(__imp__sub_000DAC20);
 X86_FUNC(sub_000DAC20) {  // the frame's 2D pass
     nf::HitTest(ctx);
+    nf::CheatsFrame();
     // the low-health warning (app/blood.cpp): player 1's health, the actor's float at +0x824 (100 full), full in the menus
     {
         const uint32_t obj = kernel::R32(0x1F6654), actor = obj ? kernel::R32(obj + 0xBC) : 0;

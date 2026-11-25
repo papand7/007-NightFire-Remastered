@@ -96,6 +96,8 @@ X86_FUNC(sub_0003D900) {
         if (said++ < 8) LOGR("hit feedback: co-op: a shot reaches player %d (from player %d, damage %.1f, health %.1f)",
                              PlayerOf(R32(who)) + 1, PlayerOf(ow ? R32(ow + 0x24) : 0) + 1, F32(hit + 8), before);
     }
+    // god mode (the launcher's Cheats page): a player takes no damage, even a shot that would kill in one hit
+    if (hit && app::Get().god_mode && PlayerOf(who ? R32(who) : 0) >= 0) kernel::W32(hit + 8, 0);
     __imp__sub_0003D900(ctx, base);
     if (!hit || !data || !(before > 0)) return;
     float after = F32(data + 0x90);
