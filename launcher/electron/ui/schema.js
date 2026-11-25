@@ -181,6 +181,8 @@ window.SCHEMA = [
                 title: 'Gameplay', items: [
                     { f: 's', key: 'tight_movement', label: 'Tighter movement', def: false,
                         help: 'Quicker starts and direction changes, less floaty jumps with original jump height. Also applies in single-player. In multiplayer the host decides for everyone.' },
+                    { f: 's', key: 'hit_flash', label: 'Hit flash', def: true,
+                        help: 'The white screen flash when Bond is hit. Turn off if it bothers your eyes.' },
                     { f: 'g', key: 'blood', label: 'Blood on hit', def: true,
                         help: 'Blood at character impacts, plus red view edges when hurt. Works with every renderer.' },
                     { f: 's', key: 'pickup_physics', label: 'Pickup physics', def: true,

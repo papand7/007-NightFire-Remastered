@@ -1067,7 +1067,7 @@ void ResetAll() {
         d.ffb_strength = s.ffb_strength, d.ffb_road = s.ffb_road;
         d.discord_app_id = s.discord_app_id;
         s = d;
-        nf::skip_intro = false, nf::skip_paris = true, nf::hide_hud = false, nf::aim_down_sights = true;
+        nf::skip_intro = false, nf::skip_paris = true, nf::hide_hud = false, nf::hit_flash = true, nf::aim_down_sights = true;
         nf::view_motion = true, nf::foot_ik = true, nf::coop = false, nf::coop_friendly_fire = false;
         nf::coop_side = false, nf::coop_leash = true, nf::coop_respawn = true, nf::fov_percent = 100;
         nf::draw_distance = 100, nf::modern_menus = true, nf::modern_buttons = true, nf::rounded_font = false;

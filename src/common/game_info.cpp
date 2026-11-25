@@ -23,6 +23,7 @@ namespace nf {
 bool skip_intro = false;
 bool skip_paris = true;
 bool hide_hud = false;
+bool hit_flash = true;
 bool aim_down_sights = true;
 bool view_motion = true;
 bool tight_movement = false;
@@ -277,6 +278,8 @@ const app::GameInfo app::kGame = {
                 {"skip_paris", &nf::skip_paris, nullptr, "Menus at start, not Paris",
                  "START at the title opens the menus; Paris is then started from the single player missions."},
                 {"hide_hud", &nf::hide_hud, nullptr, "Hide the HUD", "For screenshots; at once, on foot and driving. The menus and pause screens stay."},
+                {"hit_flash", &nf::hit_flash, nullptr, "Hit flash",
+                 "The white screen flash when Bond is hit. On by default; off for those it troubles."},
                 {"view_motion", &nf::view_motion, nullptr, "Weapon sway and head bob",
                  "A very light bob as you walk and the gun lagging a little behind the view's turn (the original has none)."},
                 {"coop", &nf::coop, nullptr, "Story co-op (split screen)",

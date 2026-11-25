@@ -24,6 +24,8 @@
 namespace {
 using kernel::R32;
 constexpr uint32_t kCameras = 0x1F661C, kFollowed = 0x64, kAspect = 0x100, kWidescreen = 0x1F6610;
+constexpr uint32_t kFrameCounter = 0x1F65BC;
+uint32_t g_hit_flash_until[4];  // the frame a player's damage flash is still ours to hide
 
 float F32(uint32_t a) { return kernel::G<float>(a); }
 
@@ -103,6 +105,7 @@ X86_FUNC(sub_0003D900) {
     float after = F32(data + 0x90);
     if (!(after < before)) return;  // no health taken (an ally, a scripted character, the shot absorbed)
     if (int victim = PlayerOf(R32(who)); victim >= 0) {
+        g_hit_flash_until[victim] = R32(kFrameCounter) + 120;
         Bleed(victim, before - after);
         if (nf::CoopSplit()) {
             uint32_t pj = R32(hit + 0x4C), ow = pj ? R32(pj + 0xBC) : 0;
@@ -126,6 +129,25 @@ X86_FUNC(sub_0003D900) {
              kind == 2 ? "kill" : kind == 1 ? "head" : "body", before, after, x, y);
     }
     app::HitMarker(x, y, kind, before - after);
+}
+
+// The game's white damage flash: 0x243B0(camera, time, colour, mode) sets the view's flash at +0x200..+0x205. With
+// hit_flash off, a flash on a player's own camera just after they lost health is left out (the flash colour is white;
+// the view is cleared before the next frame by the game).
+X86_EXTERN_FUNC(__imp__sub_000243B0);
+X86_FUNC(sub_000243B0) {
+    __imp__sub_000243B0(ctx, base);
+    if (nf::hit_flash) return;
+    const uint32_t camera = kernel::G<uint16_t>(ctx.esp + 4);
+    if (camera >= 4 || !g_hit_flash_until[camera] ||
+        int32_t(R32(kFrameCounter) - g_hit_flash_until[camera]) >= 0) return;
+    const uint32_t cam = R32(kCameras + 4 * camera);
+    if (!cam || !mem::IsCommitted(cam + 0x205)) return;
+    const bool white = kernel::G<uint8_t>(cam + 0x200) >= 0xE0 && kernel::G<uint8_t>(cam + 0x201) >= 0xE0 &&
+                       kernel::G<uint8_t>(cam + 0x202) >= 0xE0;
+    if (!white) return;
+    kernel::G<uint8_t>(cam + 0x203) = 0, kernel::G<uint8_t>(cam + 0x205) = 0;
+    LOG_FIRST(1, "nightfire: the hit flash left out (hit_flash off)");
 }
 
 namespace {

@@ -61,6 +61,7 @@ void ModernMenuFrame(X86Context& ctx);           // default.xbe's game thread (D
 void ModernListSeen(uint32_t widget, uint32_t table);  // a table list drawn (0x7F680): its entries readable
 extern bool skip_paris;  // a new game's START goes to the menus, not into Paris (src/game/start.cpp)
 extern bool hide_hud;  // no HUD, for screenshots (src/game/hud.cpp, src/driving/hud.cpp)
+extern bool hit_flash;  // the white screen flash when Bond is hit (src/game/hit_feedback.cpp); on unless turned off
 extern bool tight_movement;  // optional firmer on-foot movement, original by default
 bool TightMovement();       // effective host rule while networked
 void ThrowSpawned(uint32_t entry, uint32_t obj);  // after the round spawner 0x211F0 (src/game/throw.cpp)

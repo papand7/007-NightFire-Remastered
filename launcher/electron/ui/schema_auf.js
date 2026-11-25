@@ -117,6 +117,12 @@ window.SCHEMA_AUF = [
     {
         id: 'controls', title: 'Controls', icon: 'pad', groups: [
             {
+                title: 'Gameplay', items: [
+                    { f: 's', key: 'hit_flash', label: 'Hit flash', def: true,
+                        help: 'The white screen flash when Bond is hit. Turn off if it bothers your eyes.' },
+                ],
+            },
+            {
                 title: 'Mouse and keyboard', items: [
                     { f: 's', key: 'keyboard', label: 'Keyboard plays as controller 1', def: true },
                     { f: 's', key: 'mouse_look', label: 'Mouse look', def: true },
