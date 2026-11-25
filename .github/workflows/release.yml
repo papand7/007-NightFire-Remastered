@@ -185,3 +185,36 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
         run: gh release upload "$TAG" out/launcher-electron/007Remastered-*.dmg --clobber
+
+  android-app:
+    runs-on: ubuntu-24.04
+    # on a tag, after the release exists (the Windows job makes it)
+    needs: launcher
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Build the APK
+        working-directory: android
+        run: ./gradlew assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 007Remastered-Android
+          path: android/app/build/outputs/apk/release/007Remastered-Android.apk
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+        run: gh release upload "$TAG" android/app/build/outputs/apk/release/007Remastered-Android.apk --clobber
